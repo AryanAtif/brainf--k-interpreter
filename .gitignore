@@ -1,0 +1,4 @@
+cat.c
+print-h.c
+
+*.o
