@@ -1,19 +1,49 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-void init_interpreter (char *code);
+#define MIN_CODE_LENGTH 64
+
+char* read_input ();
+void init_interpreter (char const *code);
 void operation (char operator, char **ptr);
 // int count_occurence (char operator, char *code);
 
-int main(int argc, char **argv)
+int main(void)
 {
-  if (argc <= 1 || argc > 2) {printf ("Usage: ./interpreter.o <brainfuck code>.\n"); return 1;}
-
-
-  init_interpreter (&(*argv[1]));
-  return 0;
+  char *code = read_input();
+  if (code == NULL) {printf ("Memory to the code array could not be allocated\n"); return 1;}
+  init_interpreter (code);
+  return 0; 
 }
 
-void init_interpreter (char *code)
+char* read_input ()
+{
+  size_t code_memory = MIN_CODE_LENGTH;
+  char *code = malloc (code_memory);
+  if (code == NULL) { return NULL;}
+  printf ("the size of code %zu\n", code_memory);
+
+  printf ("Enter the brainfuck code: ");
+  int i = 0;
+  do 
+  {
+    if (i > code_memory)  // to keep dynamically increasing the memory allocated to char* code
+    {
+      /*printf ("rellocating... %d\n", i-10);
+      printf ("the size of code %zu\n", sizeof(code));*/
+      code = realloc(code, (i * MIN_CODE_LENGTH)); // increase the code length to 64
+      code_memory += MIN_CODE_LENGTH;
+      if (code == NULL) {return NULL;}
+    }
+    code[i] = getchar();
+    i++;
+  }
+  while (code[i-1] != '\n'); // since we're incrementing i before the loop ends, code[i] would move over the last entered character.
+
+  return code;
+}
+
+void init_interpreter (char const *code)
 {
   printf ("You entered: %s\n", code);
 
@@ -23,6 +53,7 @@ void init_interpreter (char *code)
 
   while (code[i] != '\0')
   {
+    printf ("\nSymbol %d counted: %c", i, code[i]);
     operation (code[i], &ptr_memory_block); //  <<--- Function call
     i++;
   }
@@ -62,4 +93,3 @@ void operation (char operator, char **ptr) // invalid char** pass
       break;
   }
 }
-
