@@ -56,7 +56,6 @@ void init_interpreter (char const *code)
   int i = 0;
   while (code[i] != '\n')
   {
-    printf ("Symbol %d counted: %c\n", i, code[i]);
     if (code [i] == '>')
     {
       printf ("Inside the inc mem condition.\n");
@@ -70,10 +69,23 @@ void init_interpreter (char const *code)
       }
     }
     else if (code [i] == '<') {current_block--;}
-    else {operation (code[i], &ptr_memory_block, current_block);}
+    
+    else if (code [i] == '[') 
+    {
+      for (int j = 0; code [i + j] != '[' && code [i + j] != '\n'; i++)
+      {
+        if (code [i+j] == '[') {continue;}
+        operation (code [i+j], &ptr_memory_block, current_block);
+      }
+    }
+
+    else
+    {
+      operation (code[i], &ptr_memory_block, current_block);
+    }
+    //printf ("Symbol %d counted: %c\n", i, code[i]);
     i++;
   }
-
 }
 
 void operation (char operator, char **ptr, int memory_block) //  ptr -> *ptr -> **ptr
@@ -83,23 +95,31 @@ void operation (char operator, char **ptr, int memory_block) //  ptr -> *ptr -> 
     // +/- Operators
     case '+':
       (*((*ptr) + memory_block))++; // perform the '+' operation on the current memory block
+      printf ("ptr%d = %d\n", memory_block, *((*ptr) + memory_block));
       break;
     case '-':
       (*((*ptr) + memory_block))--; // perform the '+' operation on the current memory block
+      printf ("ptr%d = %d\n", memory_block, *((*ptr) + memory_block));
       break;
 
     // I/O Operators
     case '.':
       putchar(*(*ptr+memory_block)); // print the ASCII equivalent to the decimal number stored in the memory block
       break;
-     
+ 
     case ',':
-
       *(*ptr+memory_block) = getchar(); // stores the decimal equivalent to the ASCII character entered on the console as input 
       break;
-
+/*
+    case '[':
+      int i = 1;
+      while ((operator + i) != ']')
+      {
+        operation (*(operator + i), ptr, memory_block);
+        i++;
+      }
+*/
     default:
       break;
   }
-  printf ("ptr%d = %d\n", memory_block, *((*ptr) + memory_block));
 }
