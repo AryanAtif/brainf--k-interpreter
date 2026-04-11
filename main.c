@@ -5,7 +5,8 @@
 
 char* read_input ();
 void init_interpreter (char const *code);
-void operation (char operator, char **ptr, int memory_block);
+void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block);
+void loop (char const *code, char **memory_blocks, int current_block);
 
 int main(void)
 {
@@ -56,60 +57,49 @@ void init_interpreter (char const *code)
   int i = 0;
   while (code[i] != '\n')
   {
-    if (code [i] == '>')
-    {
-      printf ("Inside the inc mem condition.\n");
-      current_block++;  
-      // if the memory allocated to the ptr_memory_block becomes insufficient for the next characters of the code
-      if (current_block > (memory_allocated - 1)) // "-1" because we've already allocated 1 byte at the *ptr_memory_block definition
-      {
-        memory_allocated = current_block * sizeof(char);
-        ptr_memory_block = realloc (ptr_memory_block, memory_allocated);
-        *(ptr_memory_block + current_block) = 0; //making sure that the char starts with zero 
-      }
-    }
-    else if (code [i] == '<') {current_block--;}
-    
-    else if (code [i] == '[') 
-    {
-      for (int j = 0; code [i + j] != '[' && code [i + j] != '\n'; i++)
-      {
-        if (code [i+j] == '[') {continue;}
-        operation (code [i+j], &ptr_memory_block, current_block);
-      }
-    }
-
-    else
-    {
-      operation (code[i], &ptr_memory_block, current_block);
-    }
-    //printf ("Symbol %d counted: %c\n", i, code[i]);
+    operation (code, i, &memory_allocated, &ptr_memory_block, &current_block);
     i++;
   }
 }
 
-void operation (char operator, char **ptr, int memory_block) //  ptr -> *ptr -> **ptr
+void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block) //  ptr -> *ptr -> **ptr
 {
+  char operator = code [char_index];
   switch (operator)
   {
     // +/- Operators
     case '+':
-      (*((*ptr) + memory_block))++; // perform the '+' operation on the current memory block
-      printf ("ptr%d = %d\n", memory_block, *((*ptr) + memory_block));
-      break;
+      (*((*ptr) + (*current_block)))++; // perform the '+' operation on the current memory block
+      printf ("ptr%d = %d\n", *current_block, *((*ptr) + (*current_block)));
+    break;
     case '-':
-      (*((*ptr) + memory_block))--; // perform the '+' operation on the current memory block
-      printf ("ptr%d = %d\n", memory_block, *((*ptr) + memory_block));
-      break;
+      (*((*ptr) + (*current_block)))--; // perform the '+' operation on the current memory block
+      printf ("ptr%d = %d\n", *current_block, *((*ptr) + (*current_block)));
+    break;
 
     // I/O Operators
     case '.':
-      putchar(*(*ptr+memory_block)); // print the ASCII equivalent to the decimal number stored in the memory block
-      break;
- 
+      putchar(*((*ptr)+(*current_block))); // print the ASCII equivalent to the decimal number stored in the memory block
+    break;
     case ',':
-      *(*ptr+memory_block) = getchar(); // stores the decimal equivalent to the ASCII character entered on the console as input 
-      break;
+      *((*ptr) + *(current_block)) = getchar(); // stores the decimal equivalent to the ASCII character entered on the console as input 
+    break;
+
+    // > and < Operators
+    case '>':
+      (*current_block)++;  
+      // if the memory allocated to the ptr_memory_block becomes insufficient for the next characters of the code
+      if (*current_block > (*code_memory- 1)) // "-1" because we've already allocated 1 byte at the *ptr_memory_block definition
+      {
+        *code_memory = (*current_block) * sizeof(char);
+        *ptr = realloc (*ptr, *code_memory);
+        *((*ptr) + (*current_block)) = 0; //making sure that the char starts with zero 
+      }
+    break;
+    
+    case '<':
+      *current_block--;
+    break;
 /*
     case '[':
       int i = 1;
@@ -122,4 +112,14 @@ void operation (char operator, char **ptr, int memory_block) //  ptr -> *ptr -> 
     default:
       break;
   }
-}
+}/*
+void loop (char const **code, int char_index, char **memory_blocks, int current_block)
+{
+  while(true)
+  {
+    if (code[char_index] == '[') {void loop (code,  char_index,  memory_blocks, current_block)}
+    else if (code[char_index] == ']') {break;}
+    operation (code[char_index], &memory_blocks, current_block);
+    char_index++;
+  }
+}*/
