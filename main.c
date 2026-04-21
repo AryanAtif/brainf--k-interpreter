@@ -4,9 +4,9 @@
 #define MIN_CODE_LENGTH 8
 
 char* read_input ();
-void init_interpreter (char const *code);
+void init_interpreter (char *code);
 void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block);
-void loop (char const *code, char **memory_blocks, int current_block);
+void loop (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block);
 
 int main(void)
 {
@@ -27,10 +27,10 @@ char* read_input ()
   int i = 0;
   do 
   {
-    if (i > (int)code_memory)  // to keep dynamically increasing the memory allocated to char* code
+    if (i >= (int)code_memory)  // to keep dynamically increasing the memory allocated to char* code
     {
-      code = realloc(code, (i * MIN_CODE_LENGTH)); // increase the code length to 64
       code_memory += MIN_CODE_LENGTH;
+      code = realloc(code, code_memory); // increase the code length to 64
       if (code == NULL) {return NULL;}
     }
     code[i] = getchar();
@@ -41,7 +41,7 @@ char* read_input ()
   return code;
 }
 
-void init_interpreter (char const *code)
+void init_interpreter (char *code)
 {
   printf ("You entered: %s\n", code);
 
@@ -62,19 +62,20 @@ void init_interpreter (char const *code)
   }
 }
 
-void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block) //  ptr -> *ptr -> **ptr
+void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block)
 {
   char operator = code [char_index];
+
   switch (operator)
   {
     // +/- Operators
     case '+':
-      (*((*ptr) + (*current_block)))++; // perform the '+' operation on the current memory block
-      printf ("ptr%d = %d\n", *current_block, *((*ptr) + (*current_block)));
+      (*ptr)[*current_block]++; // perform the '+' operation on the current memory block
+      printf ("ptr%d = %d\n", *current_block, (*ptr)[*current_block]);
     break;
     case '-':
-      (*((*ptr) + (*current_block)))--; // perform the '+' operation on the current memory block
-      printf ("ptr%d = %d\n", *current_block, *((*ptr) + (*current_block)));
+      (*ptr)[*current_block]--; // perform the '-' operation on the current memory block
+      printf ("ptr%d = %d\n", *current_block,  (*ptr)[*current_block]);
     break;
 
     // I/O Operators
@@ -93,33 +94,53 @@ void operation (char *code, int char_index, size_t* code_memory, char **ptr, int
       {
         *code_memory = (*current_block) * sizeof(char);
         *ptr = realloc (*ptr, *code_memory);
-        *((*ptr) + (*current_block)) = 0; //making sure that the char starts with zero 
+        (*ptr)[*current_block] = 0; //making sure that the char starts with zero 
       }
     break;
     
     case '<':
-      *current_block--;
+      if (*current_block == 0) {break;}
+      (*current_block)--;
     break;
-/*
+
     case '[':
-      int i = 1;
-      while ((operator + i) != ']')
-      {
-        operation (*(operator + i), ptr, memory_block);
-        i++;
-      }
-*/
+      loop (code, char_index, code_memory, ptr, current_block);
+      break;
+
     default:
       break;
   }
-}/*
-void loop (char const **code, int char_index, char **memory_blocks, int current_block)
+}
+void loop (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block)
 {
+  char_index++; // we should start from the next character.
+  if ((*ptr)[*current_block] <= 0) {return;}
+  
   while(true)
   {
-    if (code[char_index] == '[') {void loop (code,  char_index,  memory_blocks, current_block)}
+    if (code[char_index] == '[') { loop (code,  char_index, code_memory, ptr, current_block);}
     else if (code[char_index] == ']') {break;}
-    operation (code[char_index], &memory_blocks, current_block);
+
+    operation (code, char_index, code_memory, ptr, current_block);
     char_index++;
+
   }
-}*/
+}
+
+int get_closing_bracket (char *code, int clos_index) 
+{
+    int depth = 1;
+    int i = close_index - 1;
+    while (i >= 0)
+    {
+        if (code[i] == ']') depth++;
+        else if (code[i] == '[')
+        {
+            depth--;
+            if (depth == 0) return i;
+        }
+        i--;
+    }
+    return -1;
+}
+
