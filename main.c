@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MIN_CODE_LENGTH 8
 
 char* read_input ();
 void init_interpreter (char *code);
-void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block);
-void loop (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block);
+void operation (char *code, int *char_index, size_t* code_memory, char **ptr, int *current_block);
+void loop (char *code, int *char_index, size_t* code_memory, char **ptr, int *current_block);
+int get_closing_bracket (char *code, int close_index);
 
 int main(void)
 {
@@ -37,7 +39,7 @@ char* read_input ()
     i++;
   }
   while (code[i-1] != '\n'); // since we're incrementing i before the loop ends, code[i] would move over the last entered character.
-
+  code[i - 1] = '\0';
   return code;
 }
 
@@ -55,27 +57,27 @@ void init_interpreter (char *code)
 
   int current_block = 0;
   int i = 0;
-  while (code[i] != '\n')
+  while (code[i] != '\0')
   {
-    operation (code, i, &memory_allocated, &ptr_memory_block, &current_block);
+    operation (code, &i, &memory_allocated, &ptr_memory_block, &current_block);
     i++;
   }
 }
 
-void operation (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block)
+void operation (char *code, int *char_index, size_t* code_memory, char **ptr, int *current_block)
 {
-  char operator = code [char_index];
+  char operator = code [*char_index];
 
   switch (operator)
   {
     // +/- Operators
     case '+':
       (*ptr)[*current_block]++; // perform the '+' operation on the current memory block
-      printf ("ptr%d = %d\n", *current_block, (*ptr)[*current_block]);
+      //printf ("\nptr%d = %d\n", *current_block, (*ptr)[*current_block]);
     break;
     case '-':
       (*ptr)[*current_block]--; // perform the '-' operation on the current memory block
-      printf ("ptr%d = %d\n", *current_block,  (*ptr)[*current_block]);
+      //printf ("\nptr%d = %d\n", *current_block,  (*ptr)[*current_block]);
     break;
 
     // I/O Operators
@@ -92,7 +94,7 @@ void operation (char *code, int char_index, size_t* code_memory, char **ptr, int
       // if the memory allocated to the ptr_memory_block becomes insufficient for the next characters of the code
       if (*current_block > (*code_memory- 1)) // "-1" because we've already allocated 1 byte at the *ptr_memory_block definition
       {
-        *code_memory = (*current_block) * sizeof(char);
+        *code_memory = (*current_block + 1) * sizeof(char);
         *ptr = realloc (*ptr, *code_memory);
         (*ptr)[*current_block] = 0; //making sure that the char starts with zero 
       }
@@ -111,35 +113,46 @@ void operation (char *code, int char_index, size_t* code_memory, char **ptr, int
       break;
   }
 }
-void loop (char *code, int char_index, size_t* code_memory, char **ptr, int *current_block)
+void loop (char *code, int *char_index, size_t* code_memory, char **ptr, int *current_block)
 {
-  char_index++; // we should start from the next character.
-  if ((*ptr)[*current_block] <= 0) {return;}
+  int starting_index = *char_index;
   
-  while(true)
+  if ((*ptr)[*current_block] == 0)
   {
-    if (code[char_index] == '[') { loop (code,  char_index, code_memory, ptr, current_block);}
-    else if (code[char_index] == ']') {break;}
-
-    operation (code, char_index, code_memory, ptr, current_block);
-    char_index++;
-
+    int closing_index = get_closing_bracket (code, starting_index);
+    if (closing_index < 0) {printf ("Syntax error: expected \']\' after \'[\'.\n"); return;}
+    *char_index = closing_index;
+    return;
   }
+  
+  int closing_index = get_closing_bracket (code, starting_index);
+  if (closing_index < 0) {printf ("Syntax error: expected \']\' after \'[\'.\n"); return;}
+
+  while((*ptr)[*current_block] != 0)
+  {
+    int i = starting_index + 1; // we should start from the character after '['
+    while (i < closing_index)
+    {
+      operation (code, &i, code_memory, ptr, current_block);
+      i++;
+    }
+  }
+  *char_index = closing_index;
 }
 
-int get_closing_bracket (char *code, int clos_index) 
+int get_closing_bracket (char *code, int starting_index) 
 {
     int depth = 1;
-    int i = close_index - 1;
-    while (i >= 0)
+    int i = starting_index + 1;
+    while (i < strlen(code))
     {
-        if (code[i] == ']') depth++;
-        else if (code[i] == '[')
+        if (code[i] == '[') depth++;
+        else if (code[i] == ']')
         {
             depth--;
             if (depth == 0) return i;
         }
-        i--;
+        i++;
     }
     return -1;
 }
