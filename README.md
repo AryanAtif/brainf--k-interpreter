@@ -25,7 +25,7 @@ I hope the table above gives a little idea of how this language works, but if yo
 
 - Verify if you have a C compiler installed by running `gcc --version` (you may replace "gcc" with any compiler you want the run).
 If you're on linux, you would most probably have the gcc compiler pre-installed in you system.
-- if you don't get `gcc: not found` returned, then you can skip to [Compile the program](#get-a-compiler)
+- if you don't get `gcc: not found` returned, then you can skip to [Compile the program](#compile-the-program)
 
 - Install gcc on Linux\
 Run the suitable command for your system in the terminal
