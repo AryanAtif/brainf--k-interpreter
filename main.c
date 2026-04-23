@@ -23,7 +23,6 @@ char* read_input ()
   size_t code_memory = MIN_CODE_LENGTH;
   char *code = malloc (code_memory);
   if (!code) { return NULL;}
-  printf ("the size of code %zu\n", code_memory);
 
   printf ("Enter the brainfuck code: ");
   int i = 0;
@@ -45,9 +44,6 @@ char* read_input ()
 
 void init_interpreter (char *code)
 {
-  printf ("You entered: %s\n", code);
-
-
   size_t memory_allocated = sizeof(char);
   char *ptr_memory_block = malloc (memory_allocated);
   *ptr_memory_block = 0; //making sure that the char starts with zero 
@@ -73,11 +69,9 @@ void operation (char *code, int *char_index, size_t* code_memory, char **ptr, in
     // +/- Operators
     case '+':
       (*ptr)[*current_block]++; // perform the '+' operation on the current memory block
-      //printf ("\nptr%d = %d\n", *current_block, (*ptr)[*current_block]);
     break;
     case '-':
       (*ptr)[*current_block]--; // perform the '-' operation on the current memory block
-      //printf ("\nptr%d = %d\n", *current_block,  (*ptr)[*current_block]);
     break;
 
     // I/O Operators
