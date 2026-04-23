@@ -25,7 +25,7 @@ I hope the table above gives a little idea of how this language works, but if yo
 
 - Verify if you have a C compiler installed by running `gcc --version` (you may replace "gcc" with any compiler you want the run).
 If you're on linux, you would most probably have the gcc compiler pre-installed in you system.
-- if you don't get `gcc: not found` returned, then you can skip to [Compile the program](#Compile the program)
+- if you don't get `gcc: not found` returned, then you can skip to [Compile the program](#get-a-compiler)
 
 - Install gcc on Linux\
 Run the suitable command for your system in the terminal
@@ -51,7 +51,7 @@ brew install gcc
 
 #### For Windows
 
-- Install WSL on your system and follow [For Linux and MacOS](#For Linux and MacOS).
+- Install WSL on your system and follow [For Linux and MacOS](#for-linux-and-macos).
 
 ### Compile the Program
 
