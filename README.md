@@ -27,7 +27,7 @@ I hope the table above gives a little idea of how this language works, but if yo
 If you're on linux, you would most probably have the gcc compiler pre-installed in you system.
 - if you don't get `gcc: not found` returned, then you can skip to [###Compile the program]
 
-- Install gcc on Linux
+- Install gcc on Linux\
 Run the suitable command for your system in the terminal
 
 For Debian-based systems
@@ -43,7 +43,7 @@ For Arch-based systems
 sudo pacman -S gcc
 ```
 
-- Install gcc on MacOS
+- Install gcc on MacOS.\
 Run this command in the terminal
 ```
 brew install gcc
