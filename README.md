@@ -1,8 +1,7 @@
 # Brainfuck Interpreter
 This an interpreter/compiler for the brainf**k programming language written in the C language.
 ## Brainfuck
-Brainfuck is a minimal language containing only 8 operators; '+', '-', '*', '/' '>' '<' '\[' '\]', the table below describes, in brief, what these operators do. Everything that you want code should only use these operators, and people have built some weirdly good program using this language.
-
+Brainfuck is a minimal language containing only 8 operators; '+', '-', '*', '/' '>' '<' '\[' '\]', the table below describes, in brief, what these operators do. Every program that one writes should only use these operators. Using this language people have built some weirdly good programs.
 ### Brainfuck Operators
 | Operators   | Desciption |
 |--------------- | --------------- |
